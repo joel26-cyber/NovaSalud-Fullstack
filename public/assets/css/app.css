@@ -1,0 +1,1300 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root {
+  --nova-red: #e63946;
+  --nova-red-hover: #d62839;
+  --nova-red-glow: rgba(230, 57, 70, 0.4);
+  --nova-red-subtle: rgba(230, 57, 70, 0.08);
+  --nova-blue: #e63946;
+  --nova-dark: #0f172a;
+  --nova-green: #10b981;
+  --nova-bg: #f8fafc;
+  --nova-border: #e2e8f0;
+  --nova-border-subtle: #edf2f7;
+  --nova-card-bg: #ffffff;
+  --nova-sidebar-bg: #090e18;
+  --nova-muted: #64748b;
+  --nova-radius-sm: 8px;
+  --nova-radius-md: 12px;
+  --nova-radius-lg: 16px;
+  --nova-shadow-xs: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --nova-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
+  --nova-shadow-md: 0 10px 25px rgba(15, 23, 42, 0.08);
+  --nova-shadow-glow: 0 0 20px rgba(230, 57, 70, 0.3);
+  --bs-primary: #e63946;
+  --bs-primary-rgb: 230, 57, 70;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--nova-bg);
+  color: #1e293b;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(230, 57, 70, 0.035) 0px, transparent 40%),
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.035) 0px, transparent 40%);
+  background-attachment: fixed;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   SIDEBAR (CYBER-HEALTH / DARK CLINICAL TECH)
+   ========================================================================== */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 255px;
+  background: linear-gradient(180deg, #090e18 0%, #0d1527 50%, #0a0f1d 100%);
+  color: #fff;
+  z-index: 1030;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-brand {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  width: 100%;
+}
+
+.sidebar-logo-img {
+  max-height: 44px;
+  max-width: 220px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-brand-link:hover .sidebar-logo-img {
+  transform: scale(1.03);
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #ff4d6d 0%, #e63946 55%, #b91c1c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.brand-mark:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 26px rgba(230, 57, 70, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.med-cross-icon {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  display: block;
+}
+
+.online-indicator {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  margin-right: 6px;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); box-shadow: 0 0 3px #10b981; }
+}
+
+.sidebar-nav {
+  padding: 18px 12px;
+  gap: 6px;
+}
+
+.sidebar-nav .nav-link {
+  color: #94a3b8;
+  border-radius: 12px;
+  padding: 11px 14px;
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.sidebar-nav .nav-link i {
+  font-size: 1.15rem;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.sidebar-nav .nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(3px);
+}
+
+.sidebar-nav .nav-link:hover i {
+  color: #ff4d6d;
+}
+
+.sidebar-nav .nav-link.active {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(230, 57, 70, 0.2) 0%, rgba(230, 57, 70, 0.04) 100%);
+  font-weight: 600;
+  border-left: 3.5px solid #ff3366;
+  box-shadow: 0 4px 14px rgba(230, 57, 70, 0.15), inset 0 0 12px rgba(230, 57, 70, 0.1);
+}
+
+.sidebar-nav .nav-link.active i {
+  color: #ff4d6d;
+  filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.5));
+}
+
+/* ==========================================================================
+   TOPBAR & MAIN WRAPPER
+   ========================================================================== */
+.main-wrap {
+  margin-left: 255px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 80px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--nova-border);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
+}
+
+.topbar strong {
+  font-weight: 700;
+  color: var(--nova-dark);
+  font-size: 0.95rem;
+}
+
+.topbar small {
+  font-size: 0.78rem;
+  color: var(--nova-muted);
+}
+
+.content {
+  padding: 30px 34px;
+  flex: 1;
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.page-heading h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--nova-dark);
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+
+.page-heading p {
+  margin: 0;
+  color: var(--nova-muted);
+  font-size: 0.92rem;
+}
+
+/* ==========================================================================
+   PANELS & CARDS (TECH LAB CLEAN AESTHETIC)
+   ========================================================================== */
+.panel, .stat-card {
+  background: var(--nova-card-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: var(--nova-radius-lg);
+  box-shadow: var(--nova-shadow-xs);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.panel {
+  padding: 24px;
+}
+
+.panel:hover {
+  box-shadow: var(--nova-shadow-sm);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nova-border-subtle);
+}
+
+.panel-title h2 {
+  font-size: 1.12rem;
+  font-weight: 750;
+  margin: 0;
+  color: var(--nova-dark);
+  letter-spacing: -0.01em;
+}
+
+.panel-title a {
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--nova-red);
+  transition: color 0.15s;
+}
+
+.panel-title a:hover {
+  color: var(--nova-red-hover);
+  text-decoration: underline;
+}
+
+.stat-card {
+  padding: 18px 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 16px;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.stat-icon {
+  height: 48px;
+  width: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card small {
+  color: var(--nova-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: block;
+}
+
+.stat-card strong {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--nova-dark);
+  letter-spacing: -0.02em;
+  display: block;
+}
+
+/* ==========================================================================
+   TABLES & CHIPS
+   ========================================================================== */
+.table {
+  --bs-table-bg: transparent;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1.5px solid var(--nova-border);
+  padding: 12px 14px;
+  white-space: nowrap;
+}
+
+.table td {
+  border-bottom: 1px solid var(--nova-border-subtle);
+  padding: 14px;
+  vertical-align: middle;
+  font-size: 0.92rem;
+}
+
+.table tr:hover td {
+  background-color: rgba(248, 250, 252, 0.8);
+}
+
+.code-chip {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}
+
+.empty-state {
+  text-align: center !important;
+  color: #94a3b8 !important;
+  padding: 36px !important;
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   INPUTS, FORMS & BUTTONS
+   ========================================================================== */
+.form-label {
+  font-weight: 650;
+  color: #334155;
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+
+.form-control, .form-select {
+  border: 1.5px solid var(--nova-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--nova-dark);
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--nova-red);
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
+  outline: 0;
+}
+
+.input-group-text {
+  background: #ffffff;
+  border: 1.5px solid var(--nova-border);
+  color: var(--nova-muted);
+  border-radius: 12px 0 0 12px;
+  padding-left: 16px;
+  padding-right: 14px;
+}
+
+.input-group > .form-control {
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--nova-red);
+  --bs-btn-border-color: var(--nova-red);
+  background: linear-gradient(135deg, #ff3366 0%, #e63946 55%, #c9182b 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 12px 22px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.35);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff4d79 0%, #ed2539 55%, #b91526 100%);
+  box-shadow: 0 8px 26px rgba(230, 57, 70, 0.5);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+}
+
+.btn-primary:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  box-shadow: none;
+  border-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ==========================================================================
+   PUNTO DE VENTA (POS) - PRODUCTOS & CONSOLA
+   ========================================================================== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-height: 66vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.product-grid::-webkit-scrollbar,
+.cart-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.product-grid::-webkit-scrollbar-track,
+.cart-items::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.8);
+  border-radius: 4px;
+}
+
+.product-grid::-webkit-scrollbar-thumb,
+.cart-items::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.product-grid::-webkit-scrollbar-thumb:hover,
+.cart-items::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.product-card {
+  text-align: left;
+  border: 1.5px solid var(--nova-border);
+  background: #ffffff;
+  border-radius: var(--nova-radius-md);
+  padding: 14px 16px;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-card:hover {
+  border-color: #ff4d6d;
+  box-shadow: 0 8px 24px rgba(230, 57, 70, 0.12), 0 0 0 1px rgba(230, 57, 70, 0.1);
+  transform: translateY(-2px);
+}
+
+.product-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.product-visual {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1.5px solid var(--nova-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover .product-visual {
+  transform: scale(1.05);
+  border-color: rgba(230, 57, 70, 0.4);
+  box-shadow: 0 0 12px rgba(230, 57, 70, 0.15);
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+  color: var(--nova-red);
+  font-size: 1.35rem;
+}
+
+.product-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-card .product-name {
+  display: block;
+  font-weight: 750;
+  font-size: 0.98rem;
+  color: var(--nova-dark);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card small {
+  display: block;
+  color: #64748b;
+  font-size: 0.78rem;
+  margin: 3px 0 0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card > span:last-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px dashed var(--nova-border-subtle);
+  margin-top: auto;
+}
+
+.product-card > span:last-child strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--nova-dark);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.product-card em {
+  font-style: normal;
+  color: #0d9488;
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.product-card em::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0d9488;
+  box-shadow: 0 0 6px rgba(13, 148, 136, 0.5);
+}
+
+/* Panel de Detalle de Venta (HUD) */
+.pos-cart {
+  position: sticky;
+  top: 104px;
+  border: 1.5px solid var(--nova-border);
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+}
+
+.pos-cart h2 {
+  font-weight: 800;
+  color: var(--nova-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pos-cart h2::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ff3366, #e63946);
+}
+
+.cart-items {
+  min-height: 190px;
+  max-height: 40vh;
+  overflow-y: auto;
+  margin: 14px 0;
+  padding-right: 4px;
+}
+
+.cart-row {
+  display: grid;
+  grid-template-columns: 1fr 96px 88px 30px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--nova-border-subtle);
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.cart-row:hover {
+  background: #f8fafc;
+}
+
+.cart-row strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--nova-dark);
+  display: block;
+}
+
+.cart-row small {
+  color: var(--nova-muted);
+  font-size: 0.78rem;
+  display: block;
+}
+
+.cart-row input {
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cart-row .line-total {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--nova-dark);
+  text-align: right;
+}
+
+.cart-row button {
+  border-radius: 8px;
+  padding: 4px 6px;
+  transition: all 0.15s;
+}
+
+.cart-row button:hover {
+  background: rgba(230, 57, 70, 0.1);
+  transform: scale(1.1);
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px dashed var(--nova-border);
+  padding: 18px 6px 14px;
+  margin-top: 10px;
+}
+
+.cart-total span {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--nova-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cart-total strong {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--nova-red);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 18px rgba(230, 57, 70, 0.22);
+}
+
+/* ==========================================================================
+   RECIBOS / COMPROBANTES
+   ========================================================================== */
+.receipt {
+  max-width: 850px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--nova-border);
+  box-shadow: var(--nova-shadow-sm);
+  padding: 30px;
+}
+
+.receipt-head {
+  display: flex;
+  justify-content: space-between;
+}
+
+.receipt-head h2 {
+  color: var(--nova-red);
+  font-weight: 800;
+}
+
+.receipt-head p {
+  margin: 0;
+  color: var(--nova-muted);
+}
+
+.receipt-total {
+  margin-left: auto;
+  max-width: 320px;
+  border-top: 2px solid var(--nova-dark);
+  display: flex;
+  justify-content: space-between;
+  padding-top: 14px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.receipt-page-wrap {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.receipt-ticket {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-top: 4px solid var(--nova-red);
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  padding: 22px;
+  color: var(--nova-dark);
+  font-size: 0.84rem;
+}
+
+.receipt-brand {
+  min-height: 58px;
+  padding: 10px 18px;
+  border-radius: 11px;
+  background: #050b14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.receipt-brand img {
+  display: block;
+  width: 100%;
+  max-width: 265px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.receipt-title {
+  padding: 14px 0 11px;
+  text-align: center;
+  border-bottom: 1px dashed #b8c2cf;
+}
+
+.receipt-title strong,
+.receipt-title span {
+  display: block;
+}
+
+.receipt-title strong {
+  color: var(--nova-red);
+  font-size: 0.9rem;
+  letter-spacing: 0.07em;
+}
+
+.receipt-title span {
+  margin-top: 2px;
+  color: var(--nova-muted);
+  font-size: 0.72rem;
+}
+
+.receipt-reference {
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px dashed #b8c2cf;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.receipt-reference strong {
+  font-size: 0.78rem;
+}
+
+.receipt-reference span {
+  white-space: nowrap;
+  color: var(--nova-muted);
+  font-size: 0.72rem;
+}
+
+.receipt-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  padding: 14px 0;
+  border-bottom: 1px dashed #b8c2cf;
+}
+
+.receipt-info span,
+.receipt-info strong {
+  display: block;
+}
+
+.receipt-info span {
+  margin-bottom: 2px;
+  color: var(--nova-muted);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.receipt-info strong {
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.receipt-items-head {
+  padding: 13px 0 7px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--nova-muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.receipt-item {
+  padding: 9px 0;
+  border-bottom: 1px dotted #cbd3df;
+}
+
+.receipt-item-name strong,
+.receipt-item-name small {
+  display: block;
+}
+
+.receipt-item-name strong {
+  font-size: 0.82rem;
+}
+
+.receipt-item-name small {
+  margin-top: 2px;
+  color: var(--nova-muted);
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.receipt-item-values {
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+}
+
+.receipt-item-values span {
+  color: var(--nova-muted);
+}
+
+.receipt-ticket-total {
+  margin-top: 14px;
+  padding: 13px 0 4px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-top: 2px solid var(--nova-dark);
+  font-weight: 800;
+}
+
+.receipt-ticket-total strong {
+  color: var(--nova-red);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 1.35rem;
+}
+
+.receipt-thanks {
+  padding-top: 14px;
+  text-align: center;
+  color: var(--nova-muted);
+  font-size: 0.72rem;
+}
+
+.receipt-modal-dialog {
+  width: 460px;
+  max-width: calc(100vw - 24px);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.receipt-modal-content {
+  overflow: hidden;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+}
+
+.receipt-modal-header,
+.receipt-modal-footer {
+  border-color: #e4e9f0;
+}
+
+.receipt-modal-header {
+  padding: 14px 18px;
+}
+
+.receipt-modal-header .modal-title {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.receipt-modal-body {
+  max-height: calc(100vh - 190px);
+  overflow-y: auto;
+  padding: 18px;
+  background: #eef2f6;
+}
+
+.receipt-modal-footer {
+  padding: 12px 18px;
+}
+
+.receipt-loading {
+  padding: 45px 10px;
+  text-align: center;
+  color: var(--nova-muted);
+}
+
+.badge {
+  font-weight: 650;
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   DASHBOARD COMPACT VIEW (FITS ON SCREEN)
+   ========================================================================== */
+.compact-stat {
+  padding: 11px 13px;
+  height: 72px;
+  min-height: 72px;
+  gap: 12px;
+  border-color: #d9e1eb;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+}
+
+.stat-icon-sm {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+}
+
+.compact-stat small {
+  font-size: 0.76rem;
+  line-height: 1.1;
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
+
+.compact-stat strong {
+  font-size: 1.25rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.dashboard-kpi-row {
+  flex-wrap: nowrap;
+}
+
+.dashboard-kpi-row > [class*="col-"] {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+}
+
+.dashboard-kpi-row .stat-content {
+  min-width: 0;
+}
+
+.dashboard-card {
+  padding: 14px 16px;
+}
+
+.dashboard-card .panel-title h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-table-wrap {
+  max-height: 155px;
+  overflow-y: auto;
+}
+
+.dashboard-table-card {
+  min-height: 280px;
+}
+
+.dashboard-table-card .dashboard-table-wrap {
+  max-height: 210px;
+}
+
+.dashboard-table-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dashboard-table-wrap::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.8);
+}
+
+.dashboard-table-wrap::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   LOGIN FUTURISTA
+   ========================================================================== */
+.login-page {
+  min-height: 100vh;
+  margin: 0;
+  background: #080d19;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 24px 16px;
+}
+
+.login-ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.login-ambient-orb.orb-1 {
+  width: 380px;
+  height: 380px;
+  background: #e63946;
+  top: -60px;
+  right: -60px;
+}
+
+.login-ambient-orb.orb-2 {
+  width: 340px;
+  height: 340px;
+  background: #00c49f;
+  bottom: -60px;
+  left: -60px;
+}
+
+.login-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  background: rgba(13, 21, 39, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 32px rgba(230, 57, 70, 0.2);
+  color: #ffffff;
+}
+
+.login-brand-img {
+  max-height: 105px;
+  max-width: 220px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 20px rgba(230, 57, 70, 0.45));
+  transition: transform 0.3s ease;
+}
+
+.login-brand-img:hover {
+  transform: scale(1.04);
+}
+
+.login-system-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.03em;
+}
+
+.login-card .form-label {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.login-card .input-group-text {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-right: 0;
+  color: #94a3b8;
+  border-radius: 12px 0 0 12px;
+}
+
+.login-card .form-control {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-left: 0;
+  color: #ffffff;
+  border-radius: 0 12px 12px 0;
+  font-size: 0.95rem;
+}
+
+.login-card .form-control:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ff3366;
+  box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.25);
+  color: #ffffff;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+}
+
+.login-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 14px;
+}
+
+/* ==========================================================================
+   RESPONSIVE & PRINT
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .main-wrap {
+    margin-left: 0;
+  }
+  .content {
+    padding: 20px 16px;
+  }
+  .topbar {
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .page-heading > .btn {
+    width: 100%;
+  }
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+  .cart-row {
+    grid-template-columns: 1fr 90px 28px;
+  }
+  .cart-row > .line-total {
+    display: none;
+  }
+  .panel {
+    padding: 16px;
+  }
+  .content {
+    padding: 14px;
+  }
+  .stat-card {
+    padding: 14px;
+  }
+  .stat-icon {
+    display: none;
+  }
+}
+
+@media print {
+  .sidebar, .topbar, .no-print {
+    display: none !important;
+  }
+  .main-wrap {
+    margin: 0;
+  }
+  .content {
+    padding: 0;
+  }
+  .receipt {
+    border: 0;
+    box-shadow: none;
+    max-width: none;
+  }
+  .receipt-page-wrap {
+    max-width: none;
+  }
+  .receipt-ticket {
+    width: 80mm;
+    max-width: 80mm;
+    margin: 0 auto;
+    padding: 6mm;
+    border: 0;
+    border-top: 3px solid var(--nova-red);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .app-shell {
+    min-height: auto;
+  }
+}

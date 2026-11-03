@@ -1,0 +1,6 @@
+Options -Indexes
+RewriteEngine On
+RewriteRule ^(app|config|database|docs|storage)(/|$) - [F,L]
+<FilesMatch "(^\.|\.sql$|\.log$|composer\.(json|lock)$)">
+    Require all denied
+</FilesMatch>

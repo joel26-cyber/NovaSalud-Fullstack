@@ -1,0 +1,39 @@
+# Dependencias
+node_modules/
+
+# Compilados
+frontend/dist/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+backend/.env
+
+# Archivos subidos y temporales de ejecución
+backend/uploads/*
+!backend/uploads/.gitkeep
+storage/*
+tmp/*
+!storage/.gitkeep
+!tmp/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Archivos temporales de documentación
+docs/_*
+docs/~$*
+docs/docx-preview.min.js
+docs/jszip.min.js
+
+# Material de entrada del curso (no forma parte del entregable)
+archivos/*.pdf
+archivos/*.txt

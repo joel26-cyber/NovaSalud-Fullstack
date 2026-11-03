@@ -1,0 +1,28 @@
+{
+  "name": "novasalud-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SPA React de Nova Salud migrada desde PHP",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.5.1",
+    "formik": "^2.4.6",
+    "react": "^19.3.1",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.9.5",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.0",
+    "vite": "^8.3.5"
+  }
+}
