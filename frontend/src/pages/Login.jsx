@@ -101,7 +101,7 @@ export default function Login() {
                   </button>
 
                   {import.meta.env.DEV && (
-                    <p className="text-center text-muted small mt-3 mb-0">
+                    <p className="text-center small mt-3 mb-0 login-demo">
                       Demo: <strong>admin</strong> / <strong>NovaSalud2026</strong>
                     </p>
                   )}
@@ -110,8 +110,8 @@ export default function Login() {
             </Formik>
           </div>
 
-          <div className="login-footer text-center pb-4 text-muted">
-            <small>© {new Date().getFullYear()} NovaSalud · Control FEFO & Farmacia Digital</small>
+          <div className="login-footer text-center pb-4">
+            <small>© {new Date().getFullYear()} NovaSalud</small>
           </div>
         </div>
       </main>

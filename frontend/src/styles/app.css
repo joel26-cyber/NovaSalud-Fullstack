@@ -1193,6 +1193,11 @@ body {
   font-size: 0.95rem;
 }
 
+.login-card .form-control::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
 .login-card .form-control:focus {
   background: rgba(255, 255, 255, 0.08);
   border-color: #ff3366;
@@ -1209,9 +1214,31 @@ body {
   letter-spacing: 0.03em;
 }
 
+.login-demo {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.login-demo strong {
+  color: #ffffff;
+}
+
+.login-card .invalid-feedback {
+  color: #ff9aa8;
+  font-weight: 600;
+}
+
 .login-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 14px;
+  color: #94a3b8;
+}
+
+.login-footer small {
+  color: inherit;
 }
 
 /* ==========================================================================
