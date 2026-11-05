@@ -11,7 +11,7 @@ from pathlib import Path
 
 from docx import Document
 from docx.enum.table import WD_ALIGN_VERTICAL
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
@@ -63,6 +63,7 @@ def add_para(cell, text="", size=9.5, bold=False, italic=False, color=SLATE,
         color = DARK
         space_before = max(space_before, 7)
         space_after = max(space_after, 3)
+        paragraph.paragraph_format.keep_with_next = True
     run = paragraph.add_run(text)
     style_run(run, size=size, bold=bold, italic=italic, color=color)
     return paragraph
@@ -111,40 +112,39 @@ def remove_cant_split(document):
                 tr_pr.remove(cant_split)
 
 
+def remove_placeholder_shapes(document):
+    """Quita los recuadros vacíos que trae la plantilla original."""
+    placeholders = {"Rectángulo 13", "Rectángulo 3"}
+
+    for paragraph in list(document.paragraphs):
+        names = []
+        for element in paragraph._p.iter():
+            if not isinstance(element.tag, str):
+                continue
+            if element.tag.endswith("}docPr"):
+                names.append(element.get("name"))
+
+        if names and all(name in placeholders for name in names):
+            parent = paragraph._p.getparent()
+            if parent is not None:
+                parent.remove(paragraph._p)
+
+
 def mark_header_row(table, row_index):
     tr_pr = table.rows[row_index]._tr.get_or_add_trPr()
     if tr_pr.find(qn("w:tblHeader")) is None:
         tr_pr.append(OxmlElement("w:tblHeader"))
 
 
-def add_check_cells(row, marks):
-    for mark in marks:
-        tc = OxmlElement("w:tc")
-        tc_pr = OxmlElement("w:tcPr")
-        width = OxmlElement("w:tcW")
-        width.set(qn("w:w"), "900")
-        width.set(qn("w:type"), "dxa")
-        tc_pr.append(width)
-        tc.append(tc_pr)
-        paragraph = OxmlElement("w:p")
-        p_pr = OxmlElement("w:pPr")
-        jc = OxmlElement("w:jc")
-        jc.set(qn("w:val"), "center")
-        p_pr.append(jc)
-        paragraph.append(p_pr)
-        run = OxmlElement("w:r")
-        r_pr = OxmlElement("w:rPr")
-        r_pr.append(OxmlElement("w:b"))
-        color = OxmlElement("w:color")
-        color.set(qn("w:val"), "0F9F6E" if mark else "64748B")
-        r_pr.append(color)
-        run.append(r_pr)
-        text = OxmlElement("w:t")
-        text.text = mark
-        run.append(text)
-        paragraph.append(run)
-        tc.append(paragraph)
-        row._tr.append(tc)
+def set_checkbox(sdt, checked):
+    """Marca o desmarca un control de casilla del formato original."""
+    w14 = "http://schemas.microsoft.com/office/word/2010/wordml"
+
+    for element in sdt.iter():
+        if element.tag == f"{{{w14}}}checked":
+            element.set(f"{{{w14}}}val", "1" if checked else "0")
+        elif element.tag == qn("w:t"):
+            element.text = "☒" if checked else "☐"
 
 
 def fill_student_data(document):
@@ -190,16 +190,15 @@ def fill_paragraphs(document):
     insert_paras_after(
         problem_anchor,
         [
-            "La botica Nova Salud ha crecido en clientes y volumen de operaciones, pero su control de "
-            "inventario y ventas aún depende de registros manuales. Esta situación genera diferencias "
-            "entre el stock físico y el registrado, desabastecimientos de productos de alta rotación, "
-            "pérdidas por medicamentos vencidos, demoras en la atención y poca trazabilidad sobre los "
-            "lotes entregados. El problema central es la ausencia de un sistema web integrado que "
-            "centralice el catálogo, los lotes, las existencias, las ventas y las alertas en tiempo real.",
-            "El caso se aborda desde el desarrollo fullstack: se migra la aplicación PHP existente a una "
-            "arquitectura desacoplada con una SPA en React, una API REST en Node.js/Express y MySQL. La "
-            "propuesta conserva la identidad visual de Nova Salud, incorpora autenticación JWT con roles, "
-            "automatiza la venta FEFO y genera reportes CSV/PDF.",
+            "La botica Nova Salud ha crecido, pero todavía anota el inventario y las ventas a mano. "
+            "Eso trae problemas: el stock del cuaderno no siempre coincide con el stock real, algunos "
+            "productos se acaban y no hay aviso, otros se vencen porque no se sabe qué lote sale primero, "
+            "la atención es más lenta y no queda un historial claro de lo que se vendió. La botica necesita "
+            "un solo sistema web que ordene los medicamentos, los lotes, el stock, las ventas y los avisos.",
+            "Para resolverlo se migró la aplicación PHP a un sistema fullstack: React para la pantalla, "
+            "Node.js con Express para la lógica y MySQL para los datos. El sistema mantiene el diseño de "
+            "Nova Salud, tiene login con roles, vende primero el lote que vence antes (FEFO) y genera "
+            "reportes en CSV y PDF.",
         ],
     )
 
@@ -207,16 +206,12 @@ def fill_paragraphs(document):
     insert_paras_after(
         solution_anchor,
         [
-            "La propuesta de solución es un sistema web fullstack denominado Nova Salud, compuesto por un "
-            "frontend React + Vite, un backend Express + MySQL y la base de datos relacional bd_botica. "
-            "El sistema cubre el ciclo completo: autenticación, dashboard, catálogo de medicamentos, "
-            "registro de lotes, control de vencimientos, inventario, punto de venta con FEFO, historial, "
-            "comprobantes, reportes y administración de usuarios.",
-            "Las evidencias de implementación son: API REST probada, SPA responsive con Bootstrap, scripts "
-            "de instalación de base de datos, pruebas smoke 17/17, pruebas de interfaz con los roles "
-            "administrador y vendedor, venta real registrada con descuento por lote, comprobante interno y "
-            "reportes CSV/PDF. El detalle técnico se amplía en la propuesta de solución y en las tablas de "
-            "operaciones y normas.",
+            "La solución es un sistema web llamado Nova Salud. Tiene una pantalla hecha en React, un "
+            "servidor en Node.js/Express y una base de datos MySQL. Incluye login, panel, medicamentos, "
+            "lotes, vencimientos, inventario, punto de venta, historial, comprobantes, reportes y usuarios.",
+            "Las evidencias son: la API probada, la pantalla en React, la base de datos, las pruebas "
+            "(17 de 17), una venta real con descuento de lote, el comprobante y los reportes CSV/PDF. "
+            "Los detalles están en la propuesta y en las tablas de operaciones y normas.",
         ],
     )
 
@@ -224,8 +219,8 @@ def fill_paragraphs(document):
     insert_paras_after(
         questions_anchor,
         [
-            "Las respuestas se presentan a continuación, vinculando el caso Nova Salud con las preguntas "
-            "guía del trabajo final y con las decisiones de diseño de la solución.",
+            "Las respuestas se presentan a continuación, relacionando el caso Nova Salud con las preguntas "
+            "guía del trabajo final.",
         ],
     )
 
@@ -233,8 +228,7 @@ def fill_paragraphs(document):
     insert_paras_after(
         schedule_anchor,
         [
-            "S1 a S6 corresponden a las seis semanas de ejecución del trabajo final. Cada actividad se "
-            "marca con X en la semana en que se desarrolla.",
+            "S1 a S6 son las seis semanas del trabajo. Cada X marca la semana en la que se hace la actividad.",
         ],
     )
 
@@ -242,8 +236,7 @@ def fill_paragraphs(document):
     insert_paras_after(
         resources_anchor,
         [
-            "Todos los recursos son de uso libre o ya se encuentran disponibles en el entorno de "
-            "desarrollo; no se requiere inversión adicional en licencias.",
+            "Todos los recursos son gratuitos o ya están disponibles. No se necesita comprar licencias.",
         ],
     )
 
@@ -251,9 +244,8 @@ def fill_paragraphs(document):
     insert_paras_after(
         operations_anchor,
         [
-            "Las operaciones se ejecutaron siguiendo el ciclo de vida del software y se vincularon con "
-            "normas de calidad, seguridad de la información, seguridad y salud en el trabajo y cuidado "
-            "ambiental.",
+            "Las operaciones siguen el ciclo del software y toman en cuenta la calidad, la seguridad, "
+            "la salud y el medio ambiente.",
         ],
     )
 
@@ -270,70 +262,70 @@ def fill_questions(document):
 
     answers = [
         [
-            ("Los principales desafíos operativos son:", True),
-            ("Registro manual y disperso: las existencias se anotan en cuadernos u hojas de cálculo, lo que produce diferencias entre el stock físico y el registrado.", False),
-            ("Desabastecimiento y sobrestock: sin alertas de stock mínimo ni visibilidad de rotación, se compra tarde o en exceso.", False),
-            ("Pérdida por vencimientos: no se aplica FEFO y los lotes próximos a vencer no se identifican a tiempo.", False),
-            ("Falta de trazabilidad: no se sabe con precisión qué lote se entregó en cada venta, lo que dificulta auditorías y reclamos.", False),
-            ("Demoras en la atención: la búsqueda de precios, stock y lotes es lenta y propensa a errores.", False),
-            ("Información poco confiable para decidir: no existen reportes oportunos de ventas, margen, rotación ni productos críticos.", False),
-            ("Riesgos de seguridad: accesos compartidos, claves débiles y ausencia de roles diferenciados.", False),
-            ("Dependencia de las personas: el conocimiento queda en el personal y no en un sistema.", False),
-            ("En Nova Salud el crecimiento de clientes agrava estos problemas y afecta la continuidad del negocio.", False),
+            ("Los problemas principales son:", True),
+            ("El stock se anota a mano. El cuaderno no siempre coincide con lo que hay en el estante.", False),
+            ("No hay avisos cuando un producto está por acabarse. A veces se compra tarde.", False),
+            ("No se sabe qué lote vence primero. Algunos medicamentos se vencen y se pierde dinero.", False),
+            ("No queda claro qué lote se vendió. Si hay un reclamo, es difícil revisar.", False),
+            ("La atención es más lenta porque hay que buscar precio, stock y lote en varios lugares.", False),
+            ("No hay reportes rápidos para saber qué se vende más o qué falta.", False),
+            ("No hay roles ni claves personales. Todos pueden ver y cambiar todo.", False),
+            ("El conocimiento queda en el personal y no en un sistema.", False),
+            ("Si la botica crece, estos problemas aumentan.", False),
         ],
         [
-            ("El software debe incluir:", True),
-            ("Autenticación segura con JWT, contraseñas cifradas con bcrypt y roles administrador/vendedor.", False),
-            ("Dashboard con stock disponible, ventas del día, ingresos, productos próximos a vencer, lotes vencidos y alertas de stock bajo.", False),
-            ("Catálogo de medicamentos con código, nombre, categoría, concentración, presentación, laboratorio, precio, stock mínimo e imagen.", False),
-            ("Gestión de lotes con número, fecha de ingreso, fecha de vencimiento, cantidad inicial, cantidad disponible y estado (habilitado/bloqueado).", False),
-            ("Control de vencimientos configurable (días de anticipación) y clasificación automática: vencido, próximo y vigente.", False),
-            ("Inventario con movimientos auditables y ajustes de entrada/salida justificados.", False),
-            ("Punto de venta ágil: búsqueda, carrito, validación de stock en tiempo real, selección FEFO y confirmación transaccional.", False),
-            ("Historial de ventas, comprobante interno y detalle de lotes utilizados.", False),
-            ("Reportes CSV/PDF de ventas y stock.", False),
-            ("Administración de usuarios y configuración de alertas.", False),
-            ("Interfaz responsive, intuitiva y consistente con la identidad visual de Nova Salud.", False),
-            ("API REST documentada, validaciones en servidor y manejo controlado de errores.", False),
-            ("Estas características cubren los requisitos del caso y las condiciones de seguridad, alertas y usabilidad.", False),
+            ("El software debe tener:", True),
+            ("Login con usuario, contraseña y roles de administrador y vendedor.", False),
+            ("Un panel con stock, ventas del día, productos por vencer y productos con poco stock.", False),
+            ("Registro de medicamentos con precio, categoría, stock mínimo y foto.", False),
+            ("Registro de lotes con fecha de vencimiento y cantidad.", False),
+            ("Avisos de vencimiento y de stock bajo.", False),
+            ("Inventario con entradas, salidas y ajustes.", False),
+            ("Punto de venta rápido: buscar, agregar al carrito y confirmar.", False),
+            ("Venta FEFO: sale primero el lote que vence antes.", False),
+            ("Historial de ventas y comprobante.", False),
+            ("Reportes en CSV y PDF.", False),
+            ("Usuarios y configuración de avisos.", False),
+            ("Diseño fácil de usar en computadora y celular.", False),
+            ("Validaciones y seguridad en el servidor.", False),
         ],
         [
-            ("El impacto se produce por cuatro mecanismos:", True),
-            ("Visibilidad en tiempo real: el stock se calcula desde los lotes y se actualiza con cada venta o ajuste, reduciendo diferencias.", False),
-            ("Alertas proactivas: el dashboard y el módulo de vencimientos avisan cuando un producto está por agotarse o un lote está próximo a vencer, permitiendo reponer o rotar a tiempo.", False),
-            ("FEFO automático: el sistema descuenta primero el lote que vence antes, disminuyendo pérdidas por vencimiento y liberando espacio.", False),
-            ("Venta rápida y segura: la búsqueda, el carrito y la validación de stock reducen el tiempo de atención y evitan vender productos agotados.", False),
-            ("Con ello se espera reducir el desabastecimiento, disminuir quejas por falta de productos, mejorar la exactitud del inventario y aumentar la confianza del cliente.", False),
-            ("La transacción FEFO garantiza que una venta no deje el stock en negativo ni registre lotes vencidos. El impacto puede medirse con indicadores antes/después y revisarse semanalmente.", False),
+            ("El impacto se da así:", True),
+            ("El stock se ve en tiempo real. Así se compra mejor y hay menos faltantes.", False),
+            ("El sistema avisa cuando un producto está por acabarse o un lote está por vencer.", False),
+            ("La venta FEFO saca primero lo que vence antes. Se pierde menos mercadería.", False),
+            ("La atención es más rápida porque todo está en una sola pantalla.", False),
+            ("El cliente encuentra más productos y espera menos.", False),
+            ("Los reportes ayudan a decidir qué comprar y qué no.", False),
+            ("Con estos controles baja el desabastecimiento y mejora el servicio.", False),
+            ("El impacto se puede medir antes y después de usar el sistema.", False),
         ],
         [
             ("Beneficios adicionales:", True),
-            ("Analítica comercial: reportes de ventas por período, productos más vendidos, ingresos y comportamiento del stock.", False),
-            ("Mejor planificación de compras: identificación de rotación y productos críticos.", False),
-            ("Reducción de papel y costos operativos: comprobantes digitales y reportes exportables.", False),
-            ("Auditoría y cumplimiento: trazabilidad de quién vendió, qué lote entregó y cuándo.", False),
-            ("Seguridad y control: roles, registros de acceso y menor dependencia de claves compartidas.", False),
-            ("Escalabilidad: la arquitectura SPA + API permite agregar e-commerce, facturación electrónica, proveedores o multi-sucursal.", False),
-            ("Imagen y competitividad: atención más rápida, información confiable y servicio moderno.", False),
-            ("Toma de decisiones: datos para negociar con proveedores y ajustar precios.", False),
-            ("Sostenibilidad: menos impresiones y mejor control de vencimientos, lo que reduce desperdicios.", False),
-            ("Capacitación: interfaz intuitiva que facilita la incorporación de nuevo personal.", False),
+            ("Reportes para saber qué productos se venden más y cuánto se gana.", False),
+            ("Mejor control de compras: se compra lo que realmente se necesita.", False),
+            ("Menos papel y menos tiempo en tareas manuales.", False),
+            ("Historial de quién vendió, cuándo y qué lote entregó.", False),
+            ("Más seguridad con roles y claves personales.", False),
+            ("El sistema puede crecer: facturación, proveedores o varias tiendas.", False),
+            ("Mejor imagen para la botica.", False),
+            ("Datos para negociar con proveedores y ajustar precios.", False),
+            ("Menos desperdicio por vencimientos.", False),
+            ("Capacitación más rápida por una pantalla simple.", False),
         ],
         [
             ("Métricas propuestas:", True),
-            ("Tasa de desabastecimiento = productos agotados / productos activos × 100; meta < 5%.", False),
-            ("Exactitud de inventario = registros coincidentes / registros auditados × 100; meta > 98%.", False),
-            ("Pérdida por vencimiento = unidades vencidas / unidades ingresadas × 100; meta < 2%.", False),
-            ("Tiempo promedio de venta = suma de tiempos de atención / número de ventas; meta < 60 s.", False),
-            ("Errores por venta = ventas con corrección / total de ventas; meta < 1%.", False),
-            ("Rotación de inventario = costo de ventas / inventario promedio; revisión mensual.", False),
-            ("Cumplimiento FEFO = ventas que usan el lote más próximo / ventas con lote; meta 100%.", False),
-            ("Disponibilidad del sistema = tiempo operativo / tiempo total; meta > 99%.", False),
-            ("Latencia de API = percentil 95 del tiempo de respuesta; meta < 500 ms.", False),
-            ("Satisfacción del cliente = encuesta CSAT/NPS; meta > 85%.", False),
-            ("Adopción = usuarios activos / usuarios registrados; meta > 90%.", False),
-            ("Uso de reportes = reportes generados por mes.", False),
-            ("Se recomienda establecer una línea base antes de la implementación y comparar a los 30, 60 y 90 días.", False),
+            ("Productos agotados / productos activos. Meta: menos de 5%.", False),
+            ("Diferencias de inventario / registros revisados. Meta: menos de 2%.", False),
+            ("Unidades vencidas / unidades compradas. Meta: menos de 2%.", False),
+            ("Tiempo promedio de una venta. Meta: menos de 1 minuto.", False),
+            ("Ventas con error / total de ventas. Meta: menos de 1%.", False),
+            ("Ventas que usan el lote más próximo a vencer / ventas con lote. Meta: 100%.", False),
+            ("Tiempo que el sistema está disponible. Meta: más de 99%.", False),
+            ("Tiempo de respuesta de la API. Meta: menos de 0.5 segundos.", False),
+            ("Satisfacción del cliente. Meta: más de 85%.", False),
+            ("Usuarios que usan el sistema / usuarios registrados. Meta: más de 90%.", False),
+            ("Comparar antes y después a los 30, 60 y 90 días.", False),
         ],
     ]
 
@@ -366,12 +358,12 @@ def fill_schedule(document):
         shade(table.cell(1, col), "F1F5F9")
 
     activities = [
-        ("Análisis del caso, levantamiento de requisitos y definición del alcance", [2]),
-        ("Diseño de arquitectura, modelo de datos y contratos de API", [2, 3]),
-        ("Desarrollo del backend Node.js/Express, JWT y MySQL", [3, 4]),
-        ("Desarrollo del frontend React/Vite, Bootstrap, rutas y formularios", [4, 5]),
-        ("Integración FEFO, inventario, reportes y comprobantes", [5, 6]),
-        ("Pruebas, documentación, despliegue y presentación", [6, 7]),
+        ("Revisar el caso y anotar lo que necesita la botica", [2]),
+        ("Diseñar la base de datos y la API", [2, 3]),
+        ("Programar el backend con Node.js", [3, 4]),
+        ("Programar el frontend con React", [4, 5]),
+        ("Unir la venta FEFO, inventario y reportes", [5, 6]),
+        ("Probar, documentar y presentar", [6, 7]),
     ]
     for row_index, (activity, weeks) in enumerate(activities, start=2):
         set_cell(table.cell(row_index, 0), str(row_index - 1), size=9, bold=True,
@@ -388,10 +380,10 @@ def fill_schedule(document):
 def fill_resources(document):
     machines = document.tables[3]
     machine_items = [
-        ("Laptop o computadora de desarrollo (Windows 11, 16 GB RAM, SSD)", "1"),
-        ("Servidor local de pruebas (XAMPP / MySQL)", "1"),
-        ("Red local y conexión a internet", "1"),
-        ("Dispositivo móvil para pruebas responsive", "1"),
+        ("Laptop o computadora", "1"),
+        ("Servidor local con XAMPP y MySQL", "1"),
+        ("Internet y red local", "1"),
+        ("Celular para probar el diseño", "1"),
     ]
     for row_index, (description, quantity) in enumerate(machine_items, start=2):
         set_cell(machines.cell(row_index, 0), description, size=9.3, color=SLATE)
@@ -401,9 +393,9 @@ def fill_resources(document):
     tools = document.tables[4]
     tool_items = [
         ("Visual Studio Code", "1"),
-        ("Node.js 24 LTS y npm", "1"),
+        ("Node.js y npm", "1"),
         ("Git y GitHub", "1"),
-        ("Navegador Chromium con DevTools", "1"),
+        ("Navegador con herramientas de desarrollo", "1"),
     ]
     for row_index, (description, quantity) in enumerate(tool_items, start=2):
         set_cell(tools.cell(row_index, 0), description, size=9.3, color=SLATE)
@@ -412,10 +404,10 @@ def fill_resources(document):
 
     materials = document.tables[5]
     material_items = [
-        ("MySQL / MariaDB (base de datos bd_botica)", "1"),
+        ("MySQL / MariaDB", "1"),
         ("Archivos CSV y PDF de prueba", "1"),
-        ("Documentación del caso y formato de informe", "1"),
-        ("Credenciales y datos de demostración", "1"),
+        ("Formato del trabajo final", "1"),
+        ("Usuarios y datos de prueba", "1"),
     ]
     for row_index, (description, quantity) in enumerate(material_items, start=2):
         set_cell(materials.cell(row_index, 0), description, size=9.3, color=SLATE)
@@ -428,149 +420,120 @@ def fill_proposal(document):
     cell = table.cell(1, 0)
     clear_cell(cell)
 
-    add_para(cell, "1. Resumen ejecutivo", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "1. Resumen", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "Nova Salud es una botica con alta demanda de medicamentos y productos farmacéuticos. "
-        "El crecimiento de clientes hizo evidente que el control manual del inventario ya no es "
-        "suficiente: genera diferencias de stock, desabastecimientos, pérdidas por vencimiento y "
-        "demoras en la atención. La propuesta consiste en un sistema web fullstack que centraliza "
-        "el catálogo, los lotes, las existencias, las ventas, los comprobantes y los reportes, con "
-        "alertas automáticas y trazabilidad FEFO.",
+        "Nova Salud es una botica que vende medicamentos y productos de farmacia. El control manual ya "
+        "no alcanza: el stock no siempre coincide, algunos productos se acaban, otros se vencen y la "
+        "atención es lenta. La propuesta es un sistema web que ordena el catálogo, los lotes, el stock, "
+        "las ventas y los reportes.",
     )
 
-    add_para(cell, "2. Situación problemática", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "2. Problema", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "El registro manual obliga a consultar varias fuentes para conocer el stock real. No existe "
-        "una regla automática que indique cuándo reponer un producto ni qué lote debe salir primero. "
-        "Tampoco hay seguridad por roles ni un historial confiable de movimientos. El resultado es un "
-        "riesgo operativo y económico: se vende lo que no hay, se vence mercadería y el cliente espera "
-        "más de lo necesario.",
+        "Hoy la información está en cuadernos y hojas de cálculo. No hay avisos de stock bajo ni de "
+        "vencimientos. Tampoco se sabe qué lote se vendió. Esto causa faltantes, pérdidas y demoras.",
     )
 
-    add_para(cell, "3. Solución propuesta", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "3. Solución", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "Se implementó una arquitectura desacoplada: una SPA en React + Vite para la interfaz, una API "
-        "REST en Node.js + Express para las reglas de negocio y MySQL para la persistencia. La API "
-        "autentica con JWT, valida permisos por rol y expone endpoints para dashboard, medicamentos, "
-        "lotes, vencimientos, inventario, ventas, reportes y usuarios. El frontend consume la API con "
-        "Axios y conserva el diseño Bootstrap de Nova Salud.",
+        "Se hizo un sistema con tres partes: React para la pantalla, Node.js/Express para el servidor "
+        "y MySQL para la base de datos. El sistema tiene login, panel, medicamentos, lotes, "
+        "vencimientos, inventario, punto de venta, historial, reportes y usuarios.",
     )
 
-    add_para(cell, "4. Arquitectura de la solución", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "4. Arquitectura", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
+    add_para(
+        cell,
+        "La pantalla se comunica con la API por Internet. La API revisa el login y guarda todo en "
+        "MySQL. En producción, el mismo servidor entrega la pantalla compilada y la API.",
+    )
     add_image(
         cell,
         "arquitectura_novasalud.png",
-        6.0,
-        "Figura 1. Arquitectura SPA + API REST + MySQL de Nova Salud.",
+        5.5,
+        "Figura 1. Arquitectura del sistema: React, API Node.js y MySQL.",
     )
 
-    add_para(cell, "5. Módulos implementados", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "5. Módulos", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     modules = [
-        "Autenticación y autorización: login con JWT, contraseñas bcrypt y roles administrador/vendedor.",
-        "Dashboard: stock disponible, ventas del día, ingresos, productos próximos a vencer, lotes vencidos y stock bajo.",
-        "Medicamentos: CRUD, categorías, precio, stock mínimo e imagen.",
-        "Lotes: número, ingreso, vencimiento, cantidad inicial/disponible y bloqueo.",
-        "Vencimientos: clasificación automática y alerta configurable de días.",
-        "Inventario: movimientos auditables y ajustes de entrada/salida con motivo.",
-        "Punto de venta: búsqueda, carrito, validación de stock y venta FEFO transaccional.",
-        "Historial y comprobantes: consulta de ventas y detalle de lotes utilizados.",
-        "Reportes: ventas diarias, productos más vendidos y exportación CSV/PDF.",
-        "Usuarios y ajustes: creación de cuentas y configuración de alertas.",
+        "Login con roles de administrador y vendedor.",
+        "Panel con stock, ventas, vencimientos y avisos.",
+        "Medicamentos con precio, stock mínimo y foto.",
+        "Lotes con fecha de vencimiento y cantidad.",
+        "Inventario con entradas, salidas y ajustes.",
+        "Punto de venta con carrito y validación de stock.",
+        "Historial, comprobante y reportes CSV/PDF.",
+        "Usuarios y configuración de avisos.",
     ]
     for module in modules:
         add_para(cell, module, size=9.4, bullet=True, space_after=1)
 
-    add_para(cell, "6. Lógica FEFO", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "6. Venta FEFO", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "FEFO significa First Expired, First Out: primero vence, primero sale. Al confirmar una venta, "
-        "el backend abre una transacción, bloquea los lotes vigentes con FOR UPDATE, verifica el stock, "
-        "ordena los lotes por fecha de vencimiento y descuenta primero el más próximo a vencer. Si el "
-        "stock es insuficiente, revierte toda la operación. Si la venta es válida, registra la cabecera, "
-        "el detalle, los lotes utilizados y los movimientos de inventario, y confirma con COMMIT.",
-    )
-    add_image(
-        cell,
-        "flujo_fefo.png",
-        3.7,
-        "Figura 2. Flujo transaccional FEFO implementado en ventaService.js.",
+        "FEFO significa “primero vence, primero sale”. Cuando se confirma una venta, el sistema busca "
+        "los lotes disponibles, ordena por fecha de vencimiento y descuenta primero el que vence antes. "
+        "Si no hay stock suficiente, no guarda la venta. Así se evita vender productos vencidos y se "
+        "pierde menos mercadería.",
     )
 
-    add_para(cell, "7. Tecnologías utilizadas", size=10.5, bold=True, color=DARK, heading=True,
+    page_break = cell.add_paragraph()
+    page_break.add_run().add_break(WD_BREAK.PAGE)
+    add_para(cell, "7. Tecnologías", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     technologies = [
-        "Frontend: React 19, Vite, React Router, Bootstrap 5, Bootstrap Icons, Formik, Yup, Axios y Chart.js.",
-        "Backend: Node.js 24, Express 5, mysql2, jsonwebtoken, bcryptjs, multer, pdfkit, helmet y cors.",
-        "Base de datos: MySQL / MariaDB, base bd_botica con integridad referencial e índices.",
-        "Herramientas: Git, GitHub, Visual Studio Code, npm y navegador Chromium con DevTools.",
+        "Frontend: React, Vite, Bootstrap, React Router, Formik, Yup y Chart.js.",
+        "Backend: Node.js, Express, mysql2, JWT, bcrypt, multer y pdfkit.",
+        "Base de datos: MySQL / MariaDB (bd_botica).",
+        "Herramientas: Git, GitHub, Visual Studio Code y navegador.",
     ]
     for item in technologies:
         add_para(cell, item, size=9.4, bullet=True, space_after=1)
 
-    add_para(cell, "8. Seguridad, calidad y normas", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "8. Seguridad y normas", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "La seguridad se apoya en JWT con expiración, bcrypt para contraseñas, autorización por rol, "
-        "consultas preparadas, validación de entradas, CORS restringido, cabeceras de seguridad con "
-        "Helmet, limitación de intentos de login y validación de archivos subidos. La calidad se "
-        "gestiona con pruebas smoke, pruebas de interfaz, revisión de consola y documentación. Se "
-        "toman como referencia ISO/IEC 25010, OWASP Top 10, ISO 9001, ISO 14001, ISO 45001, la Ley "
-        "29783 de seguridad y salud en el trabajo y la Ley 29733 de protección de datos personales.",
+        "El sistema usa JWT para la sesión, bcrypt para las claves, roles para los permisos y consultas "
+        "preparadas para evitar inyección SQL. También valida los datos y limita los intentos de login. "
+        "Se tomaron como referencia ISO/IEC 25010, OWASP Top 10, ISO 9001, ISO 14001, ISO 45001, la Ley "
+        "29783 y la Ley 29733.",
     )
 
-    add_para(cell, "9. Despliegue y operación", size=10.5, bold=True, color=DARK, heading=True,
-             align=WD_ALIGN_PARAGRAPH.LEFT)
-    add_para(
-        cell,
-        "El frontend se compila con Vite y Express sirve la carpeta dist, de modo que la aplicación "
-        "puede ejecutarse en un solo servidor. La configuración sensible se mantiene en variables de "
-        "entorno. En producción se recomienda HTTPS, respaldos programados de MySQL, monitoreo de logs "
-        "y un plan de recuperación. El entorno local se levanta con MySQL, npm run db:setup, npm start "
-        "en backend y npm run dev en frontend.",
-    )
-
-    add_para(cell, "10. Beneficios esperados", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "9. Beneficios y viabilidad", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     benefits = [
-        "Reducción del desabastecimiento y de las pérdidas por vencimiento.",
-        "Mayor exactitud del inventario y trazabilidad completa por lote.",
-        "Atención más rápida y menor cantidad de errores en caja.",
-        "Información oportuna para compras, precios y toma de decisiones.",
-        "Control de accesos, auditoría y respaldo de la información.",
-        "Base escalable para facturación electrónica, e-commerce o multi-sucursal.",
+        "Menos faltantes y menos pérdidas por vencimiento.",
+        "Inventario más exacto y con historial por lote.",
+        "Atención más rápida y con menos errores.",
+        "Reportes para comprar mejor y tomar decisiones.",
+        "Más seguridad y control de accesos.",
+        "El sistema puede crecer a facturación o varias tiendas.",
     ]
     for benefit in benefits:
         add_para(cell, benefit, size=9.4, bullet=True, space_after=1)
-
-    add_para(cell, "11. Viabilidad", size=10.5, bold=True, color=DARK, heading=True,
-             align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "La propuesta es técnicamente viable porque utiliza tecnologías gratuitas y ampliamente "
-        "documentadas, y porque el equipo ya cuenta con la base de datos y el diseño original. Es "
-        "económicamente viable por el bajo costo de licencias y la reducción esperada de pérdidas. Es "
-        "operativamente viable porque la interfaz conserva la lógica de la botica y requiere capacitación "
-        "corta. Es legalmente viable si se aplican políticas de privacidad, control de accesos y respaldo.",
+        "Es viable porque usa herramientas gratuitas, la botica ya tiene la base de datos y el diseño, "
+        "y la pantalla es fácil de usar. Solo se necesita una computadora, internet y capacitación corta.",
     )
 
-    add_para(cell, "12. Evidencias de ejecución", size=10.5, bold=True, color=DARK, heading=True,
+    add_para(cell, "10. Evidencias", size=10.5, bold=True, color=DARK, heading=True,
              align=WD_ALIGN_PARAGRAPH.LEFT)
     add_para(
         cell,
-        "Se ejecutaron 17 pruebas smoke sin fallos, pruebas de interfaz con administrador y vendedor, "
-        "validación de la venta FEFO con descuento real de lote, generación de comprobante interno, "
-        "exportación CSV/PDF y compilación de producción servida por Express. La Figura 3 presenta el "
-        "dashboard en operación y la Figura 4 el módulo de usuarios y configuración.",
+        "Se probó la API con 17 pruebas y todas pasaron. También se probó el login con administrador y "
+        "vendedor, una venta real con descuento de lote, el comprobante y los reportes CSV/PDF. La "
+        "Figura 2, en la tabla de evidencias, muestra el panel del sistema en funcionamiento.",
     )
 
 
@@ -578,52 +541,40 @@ def fill_operations(document):
     table = document.tables[7]
     operations = [
         (
-            "Análisis del caso y levantamiento de requerimientos: identificar actores, procesos, reglas de negocio y requisitos funcionales y no funcionales.",
-            "ISO/IEC 25010 (adecuación funcional y usabilidad); documentación trazable; participación del personal de la botica.",
+            "Revisar el caso y anotar las necesidades de la botica.",
+            "ISO/IEC 25010; hablar con el personal; anotar todo.",
         ),
         (
-            "Diseño de la base de datos bd_botica: entidades, relaciones, claves, índices y normalización.",
-            "Integridad referencial; tercera forma normal (3FN); respaldo previo de la información; protección de datos.",
+            "Diseñar la base de datos y las tablas.",
+            "Datos ordenados; integridad; copia de seguridad.",
         ),
         (
-            "Configuración del entorno backend: Node.js, Express, mysql2, variables de entorno y scripts npm.",
-            "Principio de menor privilegio; secretos fuera del código fuente; control de versiones con Git.",
+            "Preparar el servidor con Node.js y Express.",
+            "Claves fuera del código; control de versiones.",
         ),
         (
-            "Implementación de autenticación y autorización: JWT, bcrypt, roles administrador y vendedor.",
-            "OWASP A01, A02 y A07; contraseñas robustas; expiración de sesión; HTTPS en producción.",
+            "Crear el login y los roles.",
+            "OWASP; claves seguras; permisos por rol.",
         ),
         (
-            "CRUD de medicamentos, lotes, usuarios y configuración: validación de datos y carga de imágenes.",
-            "Validación en servidor; límite de tamaño y tipo de archivo; control de acceso; consentimiento de imágenes.",
+            "Crear medicamentos, lotes, usuarios y configuración.",
+            "Validar datos; controlar imágenes; permisos.",
         ),
         (
-            "Registro de ventas FEFO: transacción, bloqueo FOR UPDATE, descuento por lote y movimientos de inventario.",
-            "Propiedades ACID; trazabilidad por lote; prevención de stock negativo; integridad de precios históricos.",
+            "Programar la venta FEFO.",
+            "Transacción; no vender lotes vencidos; no dejar stock negativo.",
         ),
         (
-            "Alertas de stock bajo y vencimientos: cálculo con fechas del servidor y configuración de días de anticipación.",
-            "ISO 9001 (mejora continua); buenas prácticas de almacenamiento; revisión periódica de lotes.",
+            "Crear avisos, reportes y comprobantes.",
+            "ISO 9001; datos confiables; protección de datos.",
         ),
         (
-            "Reportes CSV/PDF y comprobantes: generación, descarga e impresión.",
-            "Integridad de la información; formatos abiertos; protección de datos personales; accesibilidad.",
+            "Probar el sistema.",
+            "ISO/IEC 25010; probar login, ventas, reportes y roles.",
         ),
         (
-            "Pruebas: smoke 17/17, pruebas de interfaz, roles, FEFO y regresión de stock.",
-            "ISO/IEC 25010 (fiabilidad y seguridad); pruebas documentadas; corrección y prevención de defectos.",
-        ),
-        (
-            "Despliegue: build de React, servicio estático desde Express, MySQL y respaldos.",
-            "Copias de seguridad; monitoreo; recuperación ante desastres; gestión de cambios.",
-        ),
-        (
-            "Capacitación y uso: roles, buenas prácticas de atención, pausas activas y ergonomía.",
-            "ISO 45001 y Ley 29783; ergonomía; privacidad; confidencialidad de la información.",
-        ),
-        (
-            "Operación y mantenimiento: actualizaciones, revisión de logs, consumo energético y RAEE.",
-            "ISO 14001; eficiencia energética; reciclaje de equipos; apagado responsable de equipos.",
+            "Publicar y capacitar al personal.",
+            "Respaldos; HTTPS; pausas activas; reciclaje de equipos.",
         ),
     ]
 
@@ -647,7 +598,7 @@ def fill_evidence(document):
         merged,
         "evidencia_dashboard.jpeg",
         5.55,
-        "Figura 3. Dashboard de Nova Salud con indicadores de stock, ventas y vencimientos.",
+        "Figura 2. Panel de Nova Salud con stock, ventas y vencimientos.",
     )
     merged.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
@@ -663,9 +614,10 @@ def fill_checklist(document):
     table = document.tables[9]
     for row_index in range(1, len(table.rows)):
         row = table.rows[row_index]
-        # El formato original deja una sola celda en el cuerpo; se agregan
-        # las columnas CUMPLE y NO CUMPLE para poder marcar la evidencia.
-        add_check_cells(row, ["X", ""])
+        checkboxes = row._tr.findall(qn("w:sdt"))
+        if len(checkboxes) >= 2:
+            set_checkbox(checkboxes[0], True)
+            set_checkbox(checkboxes[1], False)
     mark_header_row(table, 0)
 
 
@@ -676,6 +628,12 @@ def fill_scores(document):
         set_cell(table.cell(row_index, 3), score, size=10, bold=True, color=DARK,
                  align=WD_ALIGN_PARAGRAPH.CENTER)
     mark_header_row(table, 0)
+
+    # La sección 6 debe empezar en una página nueva junto con su tabla.
+    for paragraph in document.paragraphs:
+        if "6. VALORAR" in "".join(paragraph._p.itertext()):
+            paragraph.paragraph_format.page_break_before = True
+            break
 
 
 def main():
@@ -699,6 +657,7 @@ def main():
     fill_evidence(document)
     fill_checklist(document)
     fill_scores(document)
+    remove_placeholder_shapes(document)
 
     OUTPUT.parent.mkdir(exist_ok=True)
     document.save(OUTPUT)
